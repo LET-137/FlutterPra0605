@@ -43,7 +43,12 @@ class FirstScreen extends StatelessWidget {
         child: Column(
           children: [
             ElevatedButton(onPressed: () { 
-              GoRouter.of(context).go('/second');
+              GoRouter.of(context).push('/');
+            },
+             child: const Text('firstからfirstへ'),
+            ),
+            ElevatedButton(onPressed: () {
+              GoRouter.of(context).push('/second');
             },
              child: const Text('firstからsecondへ'),
             ),
@@ -74,7 +79,13 @@ class SecondScreen extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                GoRouter.of(context).go('/second/third');
+                GoRouter.of(context).push('/second');
+              }, 
+              child: const Text('secondからsecondへ'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                GoRouter.of(context).push('/second/third');
               }, 
               child: const Text('secondからthirdへ'),
             ),
