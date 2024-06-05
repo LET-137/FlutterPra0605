@@ -1,22 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 
 void main() {
-  runApp(const MaterialApp(
-    home: FirstScreen(),
-  ));
+  runApp(
+    MaterialApp.router(
+      routerConfig: _router,
+    ),
+  );
 }
 
-class FirstScreen extends StatefulWidget {
+final _router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const FirstScreen(),
+      routes: [
+        GoRoute(
+          path: 'second',
+          builder: (context, state) => const SecondScreen(),
+          routes: [
+            GoRoute(
+              path: 'third',
+              builder: (context, state) => const ThirdScreen(),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ]);
+
+class FirstScreen extends StatelessWidget {
   const FirstScreen({super.key});
-
-  @override
-  State<StatefulWidget> createState() => _FirstScreenState();
-}
-
-class _FirstScreenState extends State<FirstScreen> {
-  int _number = 0;
-  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,51 +42,25 @@ class _FirstScreenState extends State<FirstScreen> {
       body: Center(
         child: Column(
           children: [
-            Text(
-              'number = $_number',
+            ElevatedButton(onPressed: () { 
+              GoRouter.of(context).go('/second');
+            },
+             child: const Text('firstからsecondへ'),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                final newNumber = await Navigator.of(context).push<int>(
-                  MaterialPageRoute(
-                    builder: (_) => SecondScreen(number: _number,text: _controller.text,),
-                  ),
-                );
-                setState(() {
-                  if (newNumber != null) {
-                    _number = newNumber;
-                  }
-                });
-              }, 
-             child: const Text('secondへ'),
-            ),
-            const Text('data'),
-            TextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'enter'
-              ),
+            ElevatedButton(onPressed: () {
+              GoRouter.of(context).go('/second/third');
+            },
+             child: const Text('firstからthirdへ'),
             ),
           ],
         ),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-    
-  }
 }
 
 class SecondScreen extends StatelessWidget {
-  const SecondScreen({super.key, required this.number, required this.text});
-
-  final int number;
-  final String text;
+  const SecondScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -85,18 +74,41 @@ class SecondScreen extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(number + 1);
+                GoRouter.of(context).go('/second/third');
               }, 
-              child: const Text('Increment'),
+              child: const Text('secondからthirdへ'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(number - 1);
+                GoRouter.of(context).pop();
+              }, 
+              child: const Text('戻る'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ThirdScreen extends StatelessWidget {
+  const ThirdScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('ThirdScreen'),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                GoRouter.of(context).pop();
               },
-              child: const Text('Decrement')),
-            Text(
-              text,
-              style: const TextStyle(fontSize: 20),),
+              child: const Text('戻る'),
+              ),
           ],
         ),
       ),
