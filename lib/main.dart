@@ -45,6 +45,7 @@ class _FirstScreenState extends State<FirstScreen> {
               }, 
              child: const Text('secondへ'),
             ),
+            const Text('data'),
             TextField(
               controller: _controller,
               decoration: const InputDecoration(
