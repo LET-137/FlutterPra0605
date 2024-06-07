@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 // pullTest
@@ -10,23 +11,37 @@ void main() {
   );
 }
 
+class ExtraData {
+  final int number;
+  final String str;
+
+  ExtraData({required this.number, required this.str});
+}
+
 final _router = GoRouter(routes: [
   GoRoute(
     path: '/',
-    builder: (context, state) => const FirstScreen(),
+    builder: (context, state) {
+      return const FirstScreen();
+    },
     routes: [
       GoRoute(
         path: 'second',
         builder: (context, state) {
-          final number = state.extra as int? ?? 0;
-          return SecondScreen(number: number);
+          final ExtraData? extraData = state.extra as ExtraData?;
+          final number = extraData?.number ?? 0;
+          final str = extraData?.str ?? "";
+          return SecondScreen(number: number,str: str,);
         },
         routes: [
           GoRoute(
             path: 'third',
             builder: (context, state) {
-              final number = state.extra as int? ?? 0;
-              return ThirdScreen(number: number);
+              final ExtraData? extraData = state.extra as ExtraData?;
+              final number = extraData?.number ?? 0;
+              final str = extraData?.str ?? "";
+
+              return ThirdScreen(number: number,str: str,);
             },
           ),
         ],
@@ -43,7 +58,11 @@ class FirstScreen extends StatefulWidget {
 }
 
 class _FirstScreenState extends State<FirstScreen> {
-  final int _number = 4;
+  final TextEditingController _controller = TextEditingController(); 
+  
+  int _number = 0;
+  String _str = "";
+  
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +73,23 @@ class _FirstScreenState extends State<FirstScreen> {
       body: Center(
         child: Column(
           children: [
+            TextField(
+              controller: _controller,
+              decoration: const InputDecoration(
+                hintText: '文章を入力してください'
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _str = _controller.text;  
+                });
+              },
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _number++;
+                });
+              }, child: const Text('文章を保存')),
             ElevatedButton(
               onPressed: () {
                 GoRouter.of(context).push('/');
@@ -62,13 +98,15 @@ class _FirstScreenState extends State<FirstScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                GoRouter.of(context).push('/second', extra: _number);
+                final ExtraData extraData = ExtraData(number: _number, str: _str);
+                GoRouter.of(context).push('/second', extra: extraData,);
               },
               child: const Text('firstからsecondへ'),
             ),
             ElevatedButton(
               onPressed: () {
-                GoRouter.of(context).go('/second/third', extra: _number);
+                final ExtraData extraData = ExtraData(number: _number, str: _str);
+                GoRouter.of(context).go('/second/third', extra: extraData);
               },
               child: const Text('firstからthirdへ'),
             ),
@@ -80,8 +118,8 @@ class _FirstScreenState extends State<FirstScreen> {
 }
 
 class SecondScreen extends StatelessWidget {
-  const SecondScreen({super.key, required this.number});
-
+  const SecondScreen({super.key, required this.number,required this.str});
+  final String str;
   final int number;
 
   @override
@@ -95,6 +133,7 @@ class SecondScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('numbet: $number'),
+            Text('str: $str'),
             ElevatedButton(
               onPressed: () {
                 GoRouter.of(context).push('/second');
@@ -103,8 +142,8 @@ class SecondScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                final newNumber = number + 5;
-                GoRouter.of(context).push('/second/third', extra: newNumber);
+                final ExtraData extraData = ExtraData(number: number, str: str);
+                GoRouter.of(context).push('/second/third', extra: extraData);
               },
               child: const Text('secondからthirdへ'),
             ),
@@ -122,8 +161,8 @@ class SecondScreen extends StatelessWidget {
 }
 
 class ThirdScreen extends StatelessWidget {
-  const ThirdScreen({super.key, required this.number});
-
+  const ThirdScreen({super.key, required this.number, required this.str,});
+  final String str;
   final int number;
 
   @override
@@ -136,6 +175,7 @@ class ThirdScreen extends StatelessWidget {
         child: Column(
           children: [
             Text('number: $number'),
+            Text('str: $str'),
             ElevatedButton(
               onPressed: () {
                 GoRouter.of(context).pop();
