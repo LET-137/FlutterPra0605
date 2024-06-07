@@ -18,11 +18,17 @@ final _router = GoRouter(
       routes: [
         GoRoute(
           path: 'second',
-          builder: (context, state) => const SecondScreen(),
+          builder: (context, state) {
+            final number = state.extra as int? ?? 0;
+            return SecondScreen(number: number);
+          },
           routes: [
             GoRoute(
               path: 'third',
-              builder: (context, state) => const ThirdScreen(),
+              builder: (context, state) {
+                final number = state.extra as int? ?? 0;
+                return ThirdScreen(number: number);
+              },
             ),
           ],
         ),
@@ -30,8 +36,15 @@ final _router = GoRouter(
     ),
   ]);
 
-class FirstScreen extends StatelessWidget {
+class FirstScreen extends StatefulWidget {
   const FirstScreen({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _FirstScreenState();
+}
+
+class _FirstScreenState extends State<FirstScreen> {
+  final int _number = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +61,12 @@ class FirstScreen extends StatelessWidget {
              child: const Text('firstからfirstへ'),
             ),
             ElevatedButton(onPressed: () {
-              GoRouter.of(context).push('/second');
+              GoRouter.of(context).push('/second', extra: _number);
             },
              child: const Text('firstからsecondへ'),
             ),
             ElevatedButton(onPressed: () {
-              GoRouter.of(context).go('/second/third');
+              GoRouter.of(context).go('/second/third', extra: _number);
             },
              child: const Text('firstからthirdへ'),
             ),
@@ -64,8 +77,12 @@ class FirstScreen extends StatelessWidget {
   }
 }
 
+
+
 class SecondScreen extends StatelessWidget {
-  const SecondScreen({super.key});
+  const SecondScreen({super.key, required this.number});
+
+  final int number;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +94,7 @@ class SecondScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text('numbet: $number'),
             ElevatedButton(
               onPressed: () {
                 GoRouter.of(context).push('/second');
@@ -85,7 +103,8 @@ class SecondScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                GoRouter.of(context).push('/second/third');
+                final newNumber = number + 5;
+                GoRouter.of(context).push('/second/third', extra: newNumber);
               }, 
               child: const Text('secondからthirdへ'),
             ),
@@ -103,7 +122,9 @@ class SecondScreen extends StatelessWidget {
 }
 
 class ThirdScreen extends StatelessWidget {
-  const ThirdScreen({super.key});
+  const ThirdScreen({super.key, required this.number});
+
+  final int number;
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +135,7 @@ class ThirdScreen extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
+            Text('number: $number'),
             ElevatedButton(
               onPressed: () {
                 GoRouter.of(context).pop();
